@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>내 캐릭터 만들기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f0e8;
+    --purple: #6c5ce7;
+    --purple-light: #e8e4f8;
+    --purple-mid: #b8aef0;
+    --text: #2d2d2d;
+    --text-sub: #888;
+    --card-bg: #fff;
+    --border: #e0d8f0;
+    --chip-bg: #fff;
+    --chip-selected: #6c5ce7;
+    --chip-border: #d0c8e8;
+    --tag-bg: #f0ecfc;
+    --preview-bg: #edeaf8;
+    --gold: #c8a84b;
+    --gold-bg: #f5e8c0;
+    --gold-border: #d4b060;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 40px 20px 20px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 28px;
+  }
+  .header .emoji-avatar {
+    font-size: 52px;
+    display: block;
+    margin-bottom: 10px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .header h1 {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    color: var(--text);
+  }
+  .header p {
+    font-size: 14px;
+    color: var(--text-sub);
+  }
+
+  /* Tab buttons */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(108,92,231,0.10);
+  }
+  .tab-btn {
+    padding: 16px 10px;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+  .tab-btn.active {
+    background: var(--purple);
+    color: #fff;
+  }
+  .tab-btn.inactive {
+    background: var(--purple-light);
+    color: var(--purple-mid);
+  }
+  .tab-btn.inactive .lock {
+    font-size: 14px;
+  }
+
+  /* Step 1 Card */
+  .step-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 28px 24px;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 16px rgba(108,92,231,0.07);
+  }
+
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .section-block {
+    margin-bottom: 22px;
+  }
+
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .chip {
+    padding: 8px 18px;
+    border-radius: 999px;
+    border: 1.5px solid var(--chip-border);
+    background: var(--chip-bg);
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .chip:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+  .chip.selected {
+    background: #fff;
+    border-color: var(--purple);
+    color: var(--purple);
+    font-weight: 700;
+    box-shadow: 0 0 0 2px rgba(108,92,231,0.15);
+  }
+
+  /* Preview box */
+  .preview-box {
+    background: var(--preview-bg);
+    border-radius: 14px;
+    padding: 16px 18px;
+    margin-top: 6px;
+  }
+  .preview-box .preview-label {
+    font-size: 13px;
+    color: var(--purple);
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .preview-box .preview-text {
+    font-size: 14px;
+    color: #555;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  /* Next button */
+  .next-btn {
+    width: 100%;
+    padding: 18px;
+    border-radius: 14px;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+  .next-btn.disabled {
+    background: #d8d4e8;
+    color: #aaa;
+    cursor: not-allowed;
+  }
+  .next-btn.enabled {
+    background: var(--purple);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(108,92,231,0.25);
+  }
+  .next-btn.enabled:hover {
+    background: #5a4bcc;
+    transform: translateY(-1px);
+  }
+
+  .bottom-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  /* ===== STEP 2 ===== */
+  .char-summary {
+    background: var(--purple-light);
+    border-radius: 16px;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative;
+  }
+  .char-summary .summary-inner {
+    flex: 1;
+  }
+  .char-summary .summary-label {
+    font-size: 11px;
+    color: var(--purple);
+    font-weight: 700;
+    margin-bottom: 4px;
+  }
+  .char-summary .summary-text {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .char-summary .edit-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--purple-mid);
+    background: #fff;
+    font-size: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    color: var(--text-sub);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .char-summary .edit-btn:hover {
+    border-color: var(--purple);
+    color: var(--purple);
+  }
+
+  /* Style Grid */
+  .style-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+
+  .style-card {
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    background: var(--card-bg);
+    padding: 16px 14px;
+    cursor: pointer;
+    transition: all 0.18s;
+    position: relative;
+    overflow: hidden;
+  }
+  .style-card:hover {
+    border-color: var(--purple-mid);
+    box-shadow: 0 4px 16px rgba(108,92,231,0.10);
+    transform: translateY(-2px);
+  }
+  .style-card.selected {
+    border-color: var(--purple);
+    box-shadow: 0 4px 18px rgba(108,92,231,0.18);
+    background: var(--purple-light);
+  }
+  .style-card .style-emoji {
+    font-size: 28px;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .style-card .style-name-kr {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 2px;
+  }
+  .style-card .style-name-en {
+    font-size: 11px;
+    color: var(--text-sub);
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+  .style-card .style-desc {
+    font-size: 11px;
+    color: #777;
+    line-height: 1.5;
+    background: rgba(255,255,255,0.6);
+    border-radius: 8px;
+    padding: 4px 8px;
+  }
+
+  /* Style card colors */
+  .style-card[data-style="anime"] { --card-accent: #ff6b9d; }
+  .style-card[data-style="watercolor"] { --card-accent: #6bbf7d; }
+  .style-card[data-style="pixel"] { --card-accent: #6c5ce7; }
+  .style-card[data-style="popart"] { --card-accent: #e74c3c; }
+  .style-card[data-style="childrens"] { --card-accent: #27ae60; }
+  .style-card[data-style="cyberpunk"] { --card-accent: #00cec9; }
+  .style-card[data-style="pencil"] { --card-accent: #e67e22; }
+  .style-card[data-style="oil"] { --card-accent: #f39c12; }
+  .style-card[data-style="botanical"] { --card-accent: #27ae60; }
+
+  .style-card.selected { border-color: var(--card-accent, var(--purple)) !important; }
+
+  /* Prompt result */
+  .prompt-result {
+    background: var(--gold-bg);
+    border: 2px solid var(--gold-border);
+    border-radius: 18px;
+    padding: 22px 20px;
+    margin-bottom: 20px;
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .prompt-result .prompt-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
+  .prompt-result .prompt-header .prompt-emoji {
+    font-size: 26px;
+  }
+  .prompt-result .prompt-header .prompt-title {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--text);
+  }
+  .prompt-result .prompt-header .prompt-subtitle {
+    font-size: 12px;
+    color: var(--text-sub);
+    margin-top: 1px;
+  }
+  .prompt-result .prompt-text-box {
+    background: rgba(255,255,255,0.5);
+    border: 1.5px dashed var(--gold-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.7;
+    color: #444;
+    margin: 14px 0 16px;
+    user-select: all;
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+  .prompt-result .copy-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--gold);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.18s;
+  }
+  .prompt-result .copy-btn:hover {
+    background: #b8952a;
+    transform: translateY(-1px);
+  }
+  .prompt-result .copy-btn.copied {
+    background: #27ae60;
+  }
+
+  .bottom-tip {
+    text-align: center;
+    font-size: 12px;
+    color: #e74c3c;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  /* Hidden */
+  .hidden { display: none; }
+
+  @media (max-width: 480px) {
+    .style-grid { grid-template-columns: 1fr 1fr; }
+    .style-card .style-desc { font-size: 10px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <span class="emoji-avatar">🧒</span>
+    <h1>내 캐릭터 만들기</h1>
+    <p>내 모습을 AI에게 알려주고, 원하는 그림 스타일을 골라 캐릭터를 만들어 보세요!</p>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tab1" onclick="showStep(1)">① 내 특징 입력하기</button>
+    <button class="tab-btn inactive" id="tab2" onclick="goStep2()">② 그림 스타일 고르기 🔒</button>
+  </div>
+
+  <!-- ====== STEP 1 ====== -->
+  <div id="step1">
+    <div class="step-card">
+      <!-- 머리 스타일 -->
+      <div class="section-block">
+        <div class="section-title">💇 머리 스타일</div>
+        <div class="chips" data-group="hair">
+          <div class="chip" data-val="짧은 머리" onclick="selectChip(this)">짧은 머리</div>
+          <div class="chip" data-val="긴 머리" onclick="selectChip(this)">긴 머리</div>
+          <div class="chip" data-val="곱슬머리" onclick="selectChip(this)">곱슬머리</div>
+          <div class="chip" data-val="포니테일" onclick="selectChip(this)">포니테일</div>
+          <div class="chip" data-val="단발" onclick="selectChip(this)">단발</div>
+        </div>
+      </div>
+
+      <!-- 안경 -->
+      <div class="section-block">
+        <div class="section-title">🕶️ 안경</div>
+        <div class="chips" data-group="glasses">
+          <div class="chip" data-val="안경 있음" onclick="selectChip(this)">안경 있음</div>
+          <div class="chip" data-val="안경 없음" onclick="selectChip(this)">안경 없음</div>
+        </div>
+      </div>
+
+      <!-- 성격/분위기 -->
+      <div class="section-block">
+        <div class="section-title">😊 성격/분위기</div>
+        <div class="chips" data-group="vibe">
+          <div class="chip" data-val="밝고 활발한" onclick="selectChip(this)">밝고 활발한</div>
+          <div class="chip" data-val="차분하고 조용한" onclick="selectChip(this)">차분하고 조용한</div>
+          <div class="chip" data-val="장난꾸러기" onclick="selectChip(this)">장난꾸러기</div>
+          <div class="chip" data-val="씩씩한" onclick="selectChip(this)">씩씩한</div>
+        </div>
+      </div>
+
+      <!-- 특별한 아이템 -->
+      <div class="section-block">
+        <div class="section-title">👜 특별한 아이템</div>
+        <div class="chips" data-group="item">
+          <div class="chip" data-val="없음" onclick="selectChip(this)">없음</div>
+          <div class="chip" data-val="모자" onclick="selectChip(this)">모자</div>
+          <div class="chip" data-val="머리핀" onclick="selectChip(this)">머리핀</div>
+          <div class="chip" data-val="이어폰" onclick="selectChip(this)">이어폰</div>
+          <div class="chip" data-val="책가방" onclick="selectChip(this)">책가방</div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-box">
+        <div class="preview-label">✨ 내 캐릭터 특징 미리보기</div>
+        <div class="preview-text">
+          <span>👉</span>
+          <span id="preview-text">를 한 느낌의 어린이</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Next button -->
+    <button class="next-btn disabled" id="next-btn" onclick="goStep2()">위 항목을 모두 선택해 주세요!</button>
+
+    <div class="bottom-hint">
+      🌸 원하는 스타일을 만들고 직접 만들어 봐요, 결과를 기대해요!
+    </div>
+  </div>
+
+  <!-- ====== STEP 2 ====== -->
+  <div id="step2" class="hidden">
+    <!-- Summary -->
+    <div class="char-summary">
+      <span style="font-size:28px;">🧒</span>
+      <div class="summary-inner">
+        <div class="summary-label">내 캐릭터 특징</div>
+        <div class="summary-text" id="summary-text"></div>
+      </div>
+      <button class="edit-btn" onclick="showStep(1)">수정</button>
+    </div>
+
+    <!-- Style Grid -->
+    <div class="style-grid">
+      <div class="style-card" data-style="anime" onclick="selectStyle(this)">
+        <span class="style-emoji">🌸</span>
+        <div class="style-name-kr">지브리 애니메이션</div>
+        <div class="style-name-en">anime</div>
+        <div class="style-desc">따뜻하고 귀여운 지브리 스타일</div>
+      </div>
+      <div class="style-card" data-style="watercolor" onclick="selectStyle(this)">
+        <span class="style-emoji">✏️</span>
+        <div class="style-name-kr">수채화</div>
+        <div class="style-name-en">watercolor</div>
+        <div class="style-desc">물감이 번지는 부드러운 동화 스타일</div>
+      </div>
+      <div class="style-card" data-style="pixel" onclick="selectStyle(this)">
+        <span class="style-emoji">🟦</span>
+        <div class="style-name-kr">픽셀 아트</div>
+        <div class="style-name-en">pixel art</div>
+        <div class="style-desc">게임 속 캐릭터 같은 도트 스타일</div>
+      </div>
+      <div class="style-card" data-style="popart" onclick="selectStyle(this)">
+        <span class="style-emoji">🎭</span>
+        <div class="style-name-kr">팝아트</div>
+        <div class="style-name-en">pop art</div>
+        <div class="style-desc">강렬하고 알록달록한 팝아트 스타일</div>
+      </div>
+      <div class="style-card" data-style="childrens" onclick="selectStyle(this)">
+        <span class="style-emoji">📚</span>
+        <div class="style-name-kr">동화책 일러스트</div>
+        <div class="style-name-en">children's book</div>
+        <div class="style-desc">아기자기하고 따뜻한 그림책 스타일</div>
+      </div>
+      <div class="style-card" data-style="cyberpunk" onclick="selectStyle(this)">
+        <span class="style-emoji">🤖</span>
+        <div class="style-name-kr">사이버펑크</div>
+        <div class="style-name-en">cyberpunk</div>
+        <div class="style-desc">네온사인이 빛나는 미래적 스타일</div>
+      </div>
+      <div class="style-card" data-style="pencil" onclick="selectStyle(this)">
+        <span class="style-emoji">✏️</span>
+        <div class="style-name-kr">연필 스케치</div>
+        <div class="style-name-en">pencil sketch</div>
+        <div class="style-desc">손으로 직접 그린 스케치 느낌</div>
+      </div>
+      <div class="style-card" data-style="oil" onclick="selectStyle(this)">
+        <span class="style-emoji">🎨</span>
+        <div class="style-name-kr">유화</div>
+        <div class="style-name-en">oil painting</div>
+        <div class="style-desc">두꺼운 붓 터치의 고급스러운 유화 스타일</div>
+      </div>
+      <div class="style-card" data-style="botanical" onclick="selectStyle(this)">
+        <span class="style-emoji">🌿</span>
+        <div class="style-name-kr">보태니컬</div>
+        <div class="style-name-en">botanical</div>
+        <div class="style-desc">섬세하고 아름다운 자연 세밀화 스타일</div>
+      </div>
+    </div>
+
+    <!-- Prompt Result (hidden until style selected) -->
+    <div class="prompt-result hidden" id="prompt-result">
+      <div class="prompt-header">
+        <span class="prompt-emoji" id="prompt-emoji">🎨</span>
+        <div>
+          <div class="prompt-title" id="prompt-title">유화 캐릭터 프롬프트</div>
+          <div class="prompt-subtitle">복사해서 AI에 붙여넣어 보세요!</div>
+        </div>
+      </div>
+      <div class="prompt-text-box">
+        <span>💬</span>
+        <span id="prompt-text"></span>
+      </div>
+      <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">
+        📋 프롬프트 복사하기
+      </button>
+    </div>
+
+    <div class="bottom-tip">
+      🌸 여러 스타일로 만들어보고 가장 마음에 드는 걸 골라봐요!
+    </div>
+  </div>
+</div>
+
+<script>
+  const selections = { hair: null, glasses: null, vibe: null, item: null };
+
+  const styleData = {
+    anime:      { name: '지브리 애니메이션', emoji: '🌸', key: '지브리 애니메이션', prompt: '지브리 스타일 애니메이션으로 내 캐릭터를 만들어줘.' },
+    watercolor: { name: '수채화',         emoji: '🖌️', key: '수채화',         prompt: '수채화 스타일로 내 캐릭터를 만들어줘.' },
+    pixel:      { name: '픽셀 아트',      emoji: '🟦', key: '픽셀 아트',      prompt: '픽셀 아트 스타일로 내 캐릭터를 만들어줘.' },
+    popart:     { name: '팝아트',         emoji: '🎭', key: '팝아트',         prompt: '팝아트 스타일로 내 캐릭터를 만들어줘.' },
+    childrens:  { name: '동화책 일러스트', emoji: '📚', key: '동화책',         prompt: '동화책 일러스트 스타일로 내 캐릭터를 만들어줘.' },
+    cyberpunk:  { name: '사이버펑크',     emoji: '🤖', key: '사이버펑크',     prompt: '사이버펑크 스타일로 내 캐릭터를 만들어줘.' },
+    pencil:     { name: '연필 스케치',    emoji: '✏️', key: '연필 스케치',    prompt: '연필 스케치 스타일로 내 캐릭터를 만들어줘.' },
+    oil:        { name: '유화',           emoji: '🎨', key: '유화',           prompt: '유화 스타일로 내 캐릭터를 만들어줘.' },
+    botanical:  { name: '보태니컬',       emoji: '🌿', key: '보태니컬',       prompt: '보태니컬 스타일로 내 캐릭터를 만들어줘.' },
+  };
+
+  function selectChip(el) {
+    const group = el.parentElement.dataset.group;
+    // deselect others in group
+    el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selections[group] = el.dataset.val;
+    updatePreview();
+    updateNextBtn();
+  }
+
+  function updatePreview() {
+    const { hair, glasses, vibe, item } = selections;
+    let parts = [];
+    if (hair) parts.push(hair);
+    if (glasses) parts.push(glasses);
+    if (vibe) parts.push(vibe);
+    if (item && item !== '없음') parts.push(item + '을 한');
+    let text = '';
+    if (parts.length > 0) text = parts.join(', ') + ' 느낌의 어린이';
+    else text = '를 한 느낌의 어린이';
+    document.getElementById('preview-text').textContent = text;
+  }
+
+  function allSelected() {
+    return selections.hair && selections.glasses && selections.vibe && selections.item;
+  }
+
+  function updateNextBtn() {
+    const btn = document.getElementById('next-btn');
+    if (allSelected()) {
+      btn.textContent = '다음 단계: 그림 스타일 고르기 →';
+      btn.className = 'next-btn enabled';
+    } else {
+      btn.textContent = '위 항목을 모두 선택해 주세요!';
+      btn.className = 'next-btn disabled';
+    }
+  }
+
+  function goStep2() {
+    if (!allSelected()) return;
+    showStep(2);
+  }
+
+  function showStep(n) {
+    if (n === 1) {
+      document.getElementById('step1').classList.remove('hidden');
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('tab1').className = 'tab-btn active';
+      document.getElementById('tab2').className = 'tab-btn inactive';
+      document.getElementById('tab2').textContent = '② 그림 스타일 고르기 🔒';
+    } else {
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+      document.getElementById('tab1').className = 'tab-btn inactive';
+      document.getElementById('tab2').className = 'tab-btn active';
+      document.getElementById('tab2').textContent = '② 그림 스타일 고르기';
+      // set summary
+      const { hair, glasses, vibe, item } = selections;
+      let parts = [hair, glasses, vibe];
+      if (item && item !== '없음') parts.push(item + '를 한');
+      document.getElementById('summary-text').textContent = parts.join(', ') + ' 느낌의 어린이';
+    }
+  }
+
+  let selectedStyle = null;
+
+  function selectStyle(el) {
+    document.querySelectorAll('.style-card').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selectedStyle = el.dataset.style;
+    showPrompt(selectedStyle);
+  }
+
+  function showPrompt(styleKey) {
+    const info = styleData[styleKey];
+    const { hair, glasses, vibe, item } = selections;
+    let charDesc = [hair, glasses, vibe];
+    if (item && item !== '없음') charDesc.push(item + '를 한');
+    const charStr = charDesc.join(', ') + ' 느낌의 어린이';
+
+    let itemTail = '';
+    if (item && item !== '없음') itemTail = ', ' + item + '을 한';
+
+    const prompt = `"${info.key} 스타일로 내 캐릭터를 만들어줘. ${charStr} 캐릭터를 흰 배경에 정면을 바라보는 전신 모습으로, 스티커로 출력할 수 있게 테두리를 두껍게 그려줘."`;
+
+    document.getElementById('prompt-emoji').textContent = info.emoji;
+    document.getElementById('prompt-title').textContent = info.name + ' 캐릭터 프롬프트';
+    document.getElementById('prompt-text').textContent = prompt;
+    document.getElementById('prompt-result').classList.remove('hidden');
+    document.getElementById('copy-btn').textContent = '📋 프롬프트 복사하기';
+    document.getElementById('copy-btn').className = 'copy-btn';
+
+    // Scroll to prompt
+    setTimeout(() => {
+      document.getElementById('prompt-result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 100);
+  }
+
+  function copyPrompt() {
+    const text = document.getElementById('prompt-text').textContent;
+    const btn = document.getElementById('copy-btn');
+
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(textarea);
+
+    if (navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => {});
+    }
+
+    btn.textContent = '✅ 복사했어요!';
+    btn.className = 'copy-btn copied';
+    setTimeout(() => {
+      btn.textContent = '📋 프롬프트 복사하기';
+      btn.className = 'copy-btn';
+    }, 3000);
+  }
+</script>
+</body>
+</html>
