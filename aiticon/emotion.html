@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>표정 스티커 만들기</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0f7f0;
+    --green: #3aaa6a;
+    --green-dark: #2d8a55;
+    --green-light: #d6f0e2;
+    --green-mid: #a8d8bc;
+    --green-pale: #eaf6ef;
+    --text: #1e2d24;
+    --text-sub: #7a9985;
+    --card-bg: #fff;
+    --border: #c8e6d4;
+    --chip-bg: #fff;
+    --chip-border: #c0dece;
+    --preview-bg: #e2f4eb;
+    --gold: #3aaa6a;
+    --gold-bg: #e2f4eb;
+    --gold-border: #7bcda0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 60px;
+  }
+
+  .container {
+    max-width: 700px;
+    margin: 0 auto;
+    padding: 36px 20px 20px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  .header .emoji-avatar {
+    font-size: 50px;
+    display: block;
+    margin-bottom: 10px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  .header h1 {
+    font-size: 26px;
+    font-weight: 900;
+    margin-bottom: 8px;
+  }
+  .header p {
+    font-size: 13px;
+    color: var(--text-sub);
+    margin-bottom: 10px;
+  }
+  .header .badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    background: var(--green-light);
+    color: var(--green-dark);
+    font-size: 12px;
+    font-weight: 700;
+    padding: 5px 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--green-mid);
+  }
+
+  /* Tabs */
+  .tabs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-radius: 16px;
+    overflow: hidden;
+    margin-bottom: 24px;
+    box-shadow: 0 2px 12px rgba(58,170,106,0.12);
+  }
+  .tab-btn {
+    padding: 16px 10px;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .tab-btn.active { background: var(--green); color: #fff; }
+  .tab-btn.inactive { background: var(--green-light); color: var(--green-mid); cursor: default; }
+
+  /* Step card */
+  .step-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 26px 22px;
+    margin-bottom: 18px;
+    box-shadow: 0 2px 16px rgba(58,170,106,0.08);
+  }
+
+  .section-block { margin-bottom: 22px; }
+  .section-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    padding: 8px 16px;
+    border-radius: 999px;
+    border: 1.5px solid var(--chip-border);
+    background: var(--chip-bg);
+    font-size: 13px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 500;
+    color: var(--text);
+    cursor: pointer;
+    transition: all 0.18s;
+    user-select: none;
+  }
+  .chip:hover { border-color: var(--green); color: var(--green); }
+  .chip.selected {
+    background: #fff;
+    border-color: var(--green);
+    color: var(--green);
+    font-weight: 700;
+    box-shadow: 0 0 0 2px rgba(58,170,106,0.18);
+  }
+
+  .preview-box {
+    background: var(--preview-bg);
+    border-radius: 14px;
+    padding: 14px 16px;
+    margin-top: 4px;
+  }
+  .preview-box .preview-label {
+    font-size: 12px;
+    color: var(--green-dark);
+    font-weight: 700;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .preview-box .preview-text {
+    font-size: 14px;
+    color: #444;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+
+  /* Next button */
+  .next-btn {
+    width: 100%;
+    padding: 18px;
+    border-radius: 14px;
+    border: none;
+    font-size: 16px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+  .next-btn.disabled { background: #c8dece; color: #aaa; cursor: not-allowed; }
+  .next-btn.enabled {
+    background: var(--green);
+    color: #fff;
+    box-shadow: 0 4px 18px rgba(58,170,106,0.28);
+  }
+  .next-btn.enabled:hover { background: var(--green-dark); transform: translateY(-1px); }
+
+  .bottom-hint {
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-sub);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+  }
+
+  /* ===== STEP 2 ===== */
+  .char-summary {
+    background: var(--green-light);
+    border-radius: 16px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .char-summary .summary-inner { flex: 1; }
+  .char-summary .summary-label {
+    font-size: 11px;
+    color: var(--green-dark);
+    font-weight: 700;
+    margin-bottom: 3px;
+  }
+  .char-summary .summary-text {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1.5;
+  }
+  .char-summary .edit-btn {
+    padding: 6px 14px;
+    border-radius: 8px;
+    border: 1.5px solid var(--green-mid);
+    background: #fff;
+    font-size: 12px;
+    font-family: 'Noto Sans KR', sans-serif;
+    font-weight: 700;
+    color: var(--text-sub);
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.15s;
+  }
+  .char-summary .edit-btn:hover { border-color: var(--green); color: var(--green); }
+
+  /* Expression count */
+  .expr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .expr-header .expr-title { font-size: 16px; font-weight: 700; }
+  .expr-counter {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--green);
+    background: var(--green-light);
+    padding: 4px 12px;
+    border-radius: 999px;
+  }
+
+  /* Expression grid */
+  .expr-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 22px;
+  }
+  .expr-card {
+    border-radius: 16px;
+    border: 2px solid var(--border);
+    background: var(--card-bg);
+    padding: 16px 10px 12px;
+    cursor: pointer;
+    transition: all 0.18s;
+    text-align: center;
+    user-select: none;
+  }
+  .expr-card:hover {
+    border-color: var(--green-mid);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 14px rgba(58,170,106,0.12);
+  }
+  .expr-card.selected {
+    border-color: var(--green);
+    background: var(--green-light);
+    box-shadow: 0 4px 16px rgba(58,170,106,0.22);
+  }
+  .expr-card .expr-emoji { font-size: 32px; display: block; margin-bottom: 6px; }
+  .expr-card .expr-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .expr-card .expr-sub { font-size: 11px; color: var(--text-sub); }
+
+  /* Bubble toggle bar */
+  .bubble-toggle-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: var(--card-bg);
+    border-radius: 14px;
+    padding: 12px 18px;
+    margin-bottom: 16px;
+    box-shadow: 0 1px 8px rgba(58,170,106,0.07);
+  }
+  .bubble-toggle-label {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    flex: 1;
+  }
+  .bubble-radio-group {
+    display: flex;
+    gap: 8px;
+  }
+  .bubble-radio {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1.5px solid var(--chip-border);
+    background: var(--chip-bg);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'Noto Sans KR', sans-serif;
+    color: var(--text);
+    transition: all 0.15s;
+    user-select: none;
+  }
+  .bubble-radio:has(input:checked) {
+    border-color: var(--green);
+    background: var(--green-light);
+    color: var(--green-dark);
+  }
+  .bubble-radio input { display: none; }
+
+  /* Disabled expr card */
+  .expr-card.disabled {
+    opacity: 0.35;
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+
+  /* Prompt result */
+  .prompt-result {
+    background: var(--gold-bg);
+    border: 2px solid var(--gold-border);
+    border-radius: 18px;
+    padding: 20px 18px;
+    margin-bottom: 18px;
+    animation: fadeIn 0.35s ease;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .prompt-result .prompt-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .prompt-result .prompt-header .ph-emoji { font-size: 26px; }
+  .prompt-result .prompt-header .ph-title { font-size: 16px; font-weight: 900; }
+  .prompt-result .prompt-header .ph-sub { font-size: 12px; color: var(--text-sub); margin-top: 2px; }
+
+  /* selected tags */
+  .selected-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .sel-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff;
+    border: 1.5px solid var(--green-mid);
+    border-radius: 999px;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--green-dark);
+  }
+
+  .prompt-text-box {
+    background: rgba(255,255,255,0.6);
+    border: 1.5px dashed var(--gold-border);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 13px;
+    line-height: 1.85;
+    color: #333;
+    margin-bottom: 14px;
+    white-space: pre-line;
+  }
+
+  .copy-btn {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    border: none;
+    background: var(--green);
+    color: #fff;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Noto Sans KR', sans-serif;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all 0.18s;
+  }
+  .copy-btn:hover { background: var(--green-dark); transform: translateY(-1px); }
+  .copy-btn.copied { background: #27ae60; }
+
+  .hidden { display: none; }
+
+  @media (max-width: 480px) {
+    .expr-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .expr-card { padding: 12px 6px 10px; }
+    .expr-card .expr-emoji { font-size: 26px; }
+    .expr-card .expr-name { font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <!-- Header -->
+  <div class="header">
+    <span class="emoji-avatar">🎭</span>
+    <h1>표정 스티커 만들기</h1>
+    <p>내 캐릭터 정보를 입력하고, 표정 12가지를 골라 스티커 프롬프트를 완성해요!</p>
+    <span class="badge">✂️ A4 용지에 3×3으로 출력돼요</span>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <button class="tab-btn active" id="tab1">① 캐릭터 정보 입력</button>
+    <button class="tab-btn inactive" id="tab2">② 표정 12가지 고르기</button>
+  </div>
+
+  <!-- ====== STEP 1 ====== -->
+  <div id="step1">
+    <div class="step-card">
+
+      <!-- 그림 스타일 -->
+      <div class="section-block">
+        <div class="section-title">🎨 그림 스타일</div>
+        <div class="chips" data-group="style">
+          <div class="chip" data-val="지브리 애니메이션" onclick="selectChip(this)">지브리 애니메이션</div>
+          <div class="chip" data-val="수채화" onclick="selectChip(this)">수채화</div>
+          <div class="chip" data-val="동화책 일러스트" onclick="selectChip(this)">동화책 일러스트</div>
+          <div class="chip" data-val="픽셀 아트" onclick="selectChip(this)">픽셀 아트</div>
+          <div class="chip" data-val="팝아트" onclick="selectChip(this)">팝아트</div>
+          <div class="chip" data-val="사이버펑크" onclick="selectChip(this)">사이버펑크</div>
+          <div class="chip" data-val="보태니컬" onclick="selectChip(this)">보태니컬</div>
+        </div>
+      </div>
+
+      <!-- 머리 스타일 -->
+      <div class="section-block">
+        <div class="section-title">💇 머리 스타일</div>
+        <div class="chips" data-group="hair">
+          <div class="chip" data-val="짧은 머리" onclick="selectChip(this)">짧은 머리</div>
+          <div class="chip" data-val="긴 머리" onclick="selectChip(this)">긴 머리</div>
+          <div class="chip" data-val="곱슬머리" onclick="selectChip(this)">곱슬머리</div>
+          <div class="chip" data-val="가르마 머리" onclick="selectChip(this)">가르마 머리</div>
+          <div class="chip" data-val="투블럭" onclick="selectChip(this)">투블럭</div>
+        </div>
+      </div>
+
+      <!-- 앞머리 -->
+      <div class="section-block">
+        <div class="section-title">✂️ 앞머리</div>
+        <div class="chips" data-group="bangs">
+          <div class="chip" data-val="앞머리 있음" onclick="selectChip(this)">앞머리 있음</div>
+          <div class="chip" data-val="앞머리 없음" onclick="selectChip(this)">앞머리 없음</div>
+        </div>
+      </div>
+
+      <!-- 안경 -->
+      <div class="section-block">
+        <div class="section-title">🕶️ 안경</div>
+        <div class="chips" data-group="glasses">
+          <div class="chip" data-val="안경 있음" onclick="selectChip(this)">안경 있음</div>
+          <div class="chip" data-val="안경 없음" onclick="selectChip(this)">안경 없음</div>
+        </div>
+      </div>
+
+      <!-- 성격/분위기 -->
+      <div class="section-block">
+        <div class="section-title">😊 성격/분위기</div>
+        <div class="chips" data-group="vibe">
+          <div class="chip" data-val="밝고 활발한" onclick="selectChip(this)">밝고 활발한</div>
+          <div class="chip" data-val="차분하고 조용한" onclick="selectChip(this)">차분하고 조용한</div>
+          <div class="chip" data-val="장난꾸러기" onclick="selectChip(this)">장난꾸러기</div>
+          <div class="chip" data-val="씩씩한" onclick="selectChip(this)">씩씩한</div>
+        </div>
+      </div>
+
+      <!-- 특별한 아이템 -->
+      <div class="section-block">
+        <div class="section-title">👜 특별한 아이템</div>
+        <div class="chips" data-group="item">
+          <div class="chip" data-val="없음" onclick="selectChip(this)">없음</div>
+          <div class="chip" data-val="모자" onclick="selectChip(this)">모자</div>
+          <div class="chip" data-val="머리핀" onclick="selectChip(this)">머리핀</div>
+          <div class="chip" data-val="이어폰" onclick="selectChip(this)">이어폰</div>
+          <div class="chip" data-val="책가방" onclick="selectChip(this)">책가방</div>
+        </div>
+      </div>
+
+      <!-- Preview -->
+      <div class="preview-box">
+        <div class="preview-label">✨ 내 캐릭터 특징</div>
+        <div class="preview-text">
+          <span>👉</span>
+          <span id="preview-text">항목을 선택하면 여기에 나타나요</span>
+        </div>
+      </div>
+    </div>
+
+    <button class="next-btn disabled" id="next-btn" onclick="goStep2()">② 표정 12가지 고르러 가기 →</button>
+    <div class="bottom-hint">✂️ 프롬프트로 이미지를 만들고 스티커 프로그램에서 배치해요!</div>
+  </div>
+
+  <!-- ====== STEP 2 ====== -->
+  <div id="step2" class="hidden">
+
+    <!-- Summary -->
+    <div class="char-summary">
+      <span style="font-size:26px;">🧒</span>
+      <div class="summary-inner">
+        <div class="summary-label">내 캐릭터</div>
+        <div class="summary-text" id="summary-text"></div>
+      </div>
+      <button class="edit-btn" onclick="showStep(1)">수정</button>
+    </div>
+
+    <!-- Bubble radio toggle -->
+    <div class="bubble-toggle-bar">
+      <span class="bubble-toggle-label">💬 말풍선</span>
+      <div class="bubble-radio-group">
+        <label class="bubble-radio">
+          <input type="radio" name="bubbleMode" value="on" checked onchange="setBubbleMode('on')">
+          <span>있음</span>
+        </label>
+        <label class="bubble-radio">
+          <input type="radio" name="bubbleMode" value="off" onchange="setBubbleMode('off')">
+          <span>없음</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Expression header -->
+    <div class="expr-header">
+      <div class="expr-title">표정을 9가지 골라주세요!</div>
+      <div class="expr-counter"><span id="sel-count">0</span> / 9</div>
+    </div>
+
+    <!-- Expression grid -->
+    <div class="expr-grid" id="expr-grid">
+      <!-- rendered by JS -->
+    </div>
+
+    <!-- Prompt result -->
+    <div class="prompt-result hidden" id="prompt-result">
+      <div class="prompt-header">
+        <span class="ph-emoji">🎉</span>
+        <div>
+          <div class="ph-title">완성된 스티커 프롬프트!</div>
+          <div class="ph-sub">복사해서 AI에 붙여넣어 보세요</div>
+        </div>
+      </div>
+      <div class="selected-tags" id="selected-tags"></div>
+      <div class="prompt-text-box" id="prompt-text"></div>
+      <button class="copy-btn" id="copy-btn" onclick="copyPrompt()">📋 스티커 프롬프트 복사하기</button>
+    </div>
+
+    <div class="bottom-hint">✂️ 프롬프트로 이미지를 만들고 스티커 프로그램에서 배치해요!</div>
+  </div>
+
+</div>
+
+<script>
+  const selections = { style: null, hair: null, bangs: null, glasses: null, vibe: null, item: null };
+  const requiredGroups = ['style', 'hair', 'bangs', 'glasses', 'vibe', 'item'];
+
+  // 12 expressions — autoBubble: AI가 기분에 맞게 자동 선택한 말풍선
+  const expressions = [
+    { id: 'joy',      emoji: '😄', name: '기쁨',          sub: '활짝 웃는 표정',     en: '기쁨',
+      autoBubble: 'HI!',      desc: '눈이 초승달처럼 휘어진 활짝 웃는 표정, 두 손을 번쩍 들고' },
+    { id: 'thanks',   emoji: '🥰', name: '감사',          sub: '고마워하는 표정',    en: '감사',
+      autoBubble: '고마워!',  desc: '볼이 빨개지고 눈이 반짝이는 감사 표정, 두 손을 모으고' },
+    { id: 'surprise', emoji: '😲', name: '놀람',          sub: '깜짝 놀란 표정',     en: '놀람',
+      autoBubble: '헉!',      desc: '눈이 동그래지고 입이 벌어진 놀란 표정, 뒤로 살짝 물러나며' },
+    { id: 'angry',    emoji: '😤', name: '분노',          sub: '화가 난 표정',       en: '분노',
+      autoBubble: '?!',       desc: '눈썹이 내려가고 이를 악문 화난 표정, 머리 위에 김이 나며' },
+    { id: 'no',       emoji: '🙅', name: '거절',          sub: '싫다는 표정',        en: '거절',
+      autoBubble: 'NO!',      desc: '고개를 가로젓고 손을 X자로 흔드는 표정' },
+    { id: 'sad',      emoji: '😢', name: '슬픔',          sub: '눈물이 나는 표정',   en: '슬픔',
+      autoBubble: '미안해…',  desc: '눈물이 뚝뚝 떨어지는 슬픈 표정, 고개를 숙이고' },
+    { id: 'silent',   emoji: '😶', name: '침묵',          sub: '조용한 표정',        en: '침묵',
+      autoBubble: '…',        desc: '입을 다물고 눈만 멀뚱멀뚱한 표정' },
+    { id: 'ok',       emoji: '😌', name: '만족',          sub: '뿌듯한 표정',        en: '만족',
+      autoBubble: 'OK!',      desc: '흐뭇하게 눈을 반쯤 감은 만족스러운 표정, 엄지 척 제스처와' },
+    { id: 'wink',     emoji: '😉', name: '윙크 꾸벅 인사', sub: '한쪽 눈 윙크',     en: '윙크',
+      autoBubble: '안녕!',    desc: '한쪽 눈을 찡긋 윙크하며 꾸벅 인사하는 표정, 두 손을 앞으로 내밀고' },
+    { id: 'excited',  emoji: '🤩', name: '신나게 웃는',   sub: '신이 난 표정',       en: '신나게 웃는',
+      autoBubble: '와아!',    desc: '눈에 별이 반짝이고 입이 크게 벌어진 신난 표정, 양팔을 번쩍 들고' },
+    { id: 'crying',   emoji: '😭', name: '슬픈',          sub: '펑펑 우는 표정',     en: '슬픈',
+      autoBubble: '엉엉',     desc: '눈물이 폭포처럼 쏟아지는 표정, 두 손으로 얼굴을 감싸며 엉엉 우는 모습' },
+    { id: 'mad',      emoji: '😠', name: '화난',          sub: '잔뜩 화가 난 표정',  en: '화난',
+      autoBubble: '으악!',    desc: '눈썹이 V자로 찌푸려지고 볼이 빨개진 화난 표정, 주먹을 불끈 쥐고' },
+  ];
+
+  let selectedExprs = new Set();
+  let bubbleMode = 'on';
+
+  function setBubbleMode(mode) {
+    bubbleMode = mode;
+    if (selectedExprs.size === 9) showPromptResult();
+  }
+
+  // ── Render expression grid ──────────────────────────────
+  function renderExprGrid() {
+    const grid = document.getElementById('expr-grid');
+    grid.innerHTML = '';
+    expressions.forEach(expr => {
+      const isSel = selectedExprs.has(expr.id);
+      const isDisabled = !isSel && selectedExprs.size >= 9;
+      const card = document.createElement('div');
+      card.className = 'expr-card' + (isSel ? ' selected' : '') + (isDisabled ? ' disabled' : '');
+      card.dataset.id = expr.id;
+      card.innerHTML = `
+        <span class="expr-emoji">${expr.emoji}</span>
+        <div class="expr-name">${expr.name}</div>
+        <div class="expr-sub">${expr.sub}</div>`;
+      if (!isDisabled) card.addEventListener('click', () => toggleExpr(expr.id));
+      grid.appendChild(card);
+    });
+  }
+
+  function toggleExpr(id) {
+    if (selectedExprs.has(id)) {
+      selectedExprs.delete(id);
+    } else {
+      if (selectedExprs.size >= 9) return;
+      selectedExprs.add(id);
+    }
+    updateExprCount();
+    renderExprGrid(); // re-render to update disabled states
+    if (selectedExprs.size === 9) showPromptResult();
+    else document.getElementById('prompt-result').classList.add('hidden');
+  }
+
+  function updateExprCount() {
+    document.getElementById('sel-count').textContent = selectedExprs.size;
+  }
+
+  // ── Step 1 chip selection ───────────────────────────────
+  function selectChip(el) {
+    const group = el.parentElement.dataset.group;
+    el.parentElement.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
+    el.classList.add('selected');
+    selections[group] = el.dataset.val;
+    updatePreview();
+    updateNextBtn();
+  }
+
+  function buildCharDesc() {
+    const { style, hair, bangs, glasses, vibe, item } = selections;
+    let parts = [];
+    if (hair) parts.push(hair);
+    if (bangs) parts.push(bangs);
+    if (glasses) parts.push(glasses);
+    if (vibe) parts.push(vibe);
+    if (item && item !== '없음') parts.push(item + '을 한');
+    let str = parts.join(', ') + ' 느낌의 어린이';
+    if (style) str += ' · ' + style;
+    return str;
+  }
+
+  function updatePreview() {
+    document.getElementById('preview-text').textContent = buildCharDesc();
+  }
+
+  function allSelected() {
+    return requiredGroups.every(g => selections[g]);
+  }
+
+  function updateNextBtn() {
+    const btn = document.getElementById('next-btn');
+    btn.className = allSelected() ? 'next-btn enabled' : 'next-btn disabled';
+    btn.textContent = '② 표정 9가지 고르러 가기 →';
+  }
+
+  function goStep2() {
+    if (!allSelected()) return;
+    showStep(2);
+  }
+
+  function showStep(n) {
+    if (n === 1) {
+      document.getElementById('step1').classList.remove('hidden');
+      document.getElementById('step2').classList.add('hidden');
+      document.getElementById('tab1').className = 'tab-btn active';
+      document.getElementById('tab2').className = 'tab-btn inactive';
+    } else {
+      document.getElementById('step1').classList.add('hidden');
+      document.getElementById('step2').classList.remove('hidden');
+      document.getElementById('tab1').className = 'tab-btn inactive';
+      document.getElementById('tab2').className = 'tab-btn active';
+      document.getElementById('summary-text').textContent = buildCharDesc();
+      renderExprGrid();
+      updateExprCount();
+    }
+  }
+
+  // ── Build & show prompt ─────────────────────────────────
+  function showPromptResult() {
+    const { style, hair, bangs, glasses, vibe, item } = selections;
+
+    let charParts = [];
+    if (hair) charParts.push(hair);
+    if (bangs) charParts.push(bangs);
+    if (glasses) charParts.push(glasses);
+    if (vibe) charParts.push(vibe + ' 성격');
+    if (item && item !== '없음') charParts.push(item + '을 한');
+
+    const selList = expressions.filter(e => selectedExprs.has(e.id));
+
+    const exprDescs = selList.map((e, i) => {
+      const bubblePart = bubbleMode === 'on' ? `, 말풍선: "${e.autoBubble}"` : '';
+      return `${i + 1}. ${e.en} — ${e.desc}${bubblePart}`;
+    }).join('\n');
+
+    const bubbleSection = bubbleMode === 'on'
+      ? `\n【말풍선 / 텍스트】\n- 각 프레임에 위에 지정된 말풍선 텍스트 포함\n- 만화 스타일의 굵은 텍스트\n- 글씨는 크고 또렷하게, 한글 자모 분리 없이 표현`
+      : '';
+
+    const prompt =
+`${style} 스타일로 ${charParts.join(', ')} 느낌의 귀여운 어린이 캐릭터의
+스티커 시트를 만들어줘.
+
+【캐릭터 설명】
+${charParts.join(', ')} 느낌의 어린이.
+모든 캐릭터는 같은 외모와 스타일을 유지해줘.
+
+【표정 9가지 — 각각 다른 표정과 제스처】
+${exprDescs}
+
+【레이아웃】
+- 3×3 격자로 배치 (가로 3칸 × 세로 3칸)
+- 프레임 간격: 가로·세로 모두 5mm
+- 오프셋(여백): 1.2mm
+
+【스티커 스타일】
+- 귀여운 만화 스타일
+- 얼굴 클로즈업, 상반신 포함
+- 배경: 완전 투명(PNG)
+- 각 캐릭터 주변에 두껍고 매끄러운 흰색 테두리
+  (sticker-style smooth outline)
+- 스티커끼리 겹치지 않게 충분한 간격
+- 하나씩 따로 커팅할 수 있게 제작${bubbleSection}`;
+
+    // Tags
+    const tagsHtml = selList.map(e => {
+      const bubbleTag = bubbleMode === 'on' ? ` <span style="opacity:.65;font-size:10px">"${e.autoBubble}"</span>` : '';
+      return `<span class="sel-tag">${e.emoji} ${e.name}${bubbleTag}</span>`;
+    }).join('');
+    document.getElementById('selected-tags').innerHTML = tagsHtml;
+    document.getElementById('prompt-text').textContent = prompt;
+    document.getElementById('prompt-result').classList.remove('hidden');
+
+    const btn = document.getElementById('copy-btn');
+    btn.textContent = '📋 스티커 프롬프트 복사하기';
+    btn.className = 'copy-btn';
+
+    setTimeout(() => {
+      document.getElementById('prompt-result').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }, 150);
+  }
+
+  // ── Copy ────────────────────────────────────────────────
+  function copyPrompt() {
+    const text = document.getElementById('prompt-text').textContent;
+    const btn = document.getElementById('copy-btn');
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    try { document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    if (navigator.clipboard) navigator.clipboard.writeText(text).catch(() => {});
+    btn.textContent = '✅ 복사했어요!';
+    btn.className = 'copy-btn copied';
+    setTimeout(() => {
+      btn.textContent = '📋 스티커 프롬프트 복사하기';
+      btn.className = 'copy-btn';
+    }, 3000);
+  }
+</script>
+</body>
+</html>
