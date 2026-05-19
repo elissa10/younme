@@ -656,7 +656,6 @@
       document.getElementById('prompt-section').scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
   }
-
   function copyPrompt() {
     const text = document.getElementById('prompt-text').textContent;
     navigator.clipboard.writeText(text).then(() => {
